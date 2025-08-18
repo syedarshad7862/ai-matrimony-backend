@@ -302,13 +302,18 @@ async def upload_biodata(request: Request, file: UploadFile = File(...), user_db
         response_text = send_to_llama(extracted_text, api_key=os.getenv("GROQ_API_KEY"))
         profile_data = safe_parse_dict(response_text)
         profile_data["row_text"] = extracted_text
+        # print(f"profile-data: {profile_data}")
+        # # ✅ Duplicate checks
+        # for key in ["full_name", "father_name", "contact_no"]:
+        #     if await db["user_profiles"].find_one({key: profile_data[key]}):
+        #         raise HTTPException(status_code=400, detail=f"{key.replace('_', ' ').title()} already exists")
 
-        print(f"profile-data: {profile_data}")
         # ✅ Duplicate checks
         for key in ["full_name", "father_name", "contact_no"]:
-            if await db["user_profiles"].find_one({key: profile_data[key]}):
-                raise HTTPException(status_code=400, detail=f"{key.replace('_', ' ').title()} already exists")
-            
+            value = profile_data.get(key)
+            if value:  # Only check if value is not None or empty
+                if await db["user_profiles"].find_one({key: value}):
+                    raise HTTPException(status_code=400, detail=f"{key.replace('_', ' ').title()} already exists")
         # Insert into DB
         result = await db["user_profiles"].insert_one(profile_data)
         profile_id = str(result.inserted_id)[-6:].lower()
@@ -466,3 +471,4 @@ async def search_profiles(
     except Exception as e:
         print(f"Unexpected Error: {e}")  # Log the error
         raise HTTPException(status_code=500, detail="An unexpected error occurred")
+    
