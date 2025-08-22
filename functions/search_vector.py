@@ -1,8 +1,5 @@
 import pandas as pd
 from dotenv import load_dotenv
-from sentence_transformers import SentenceTransformer
-import numpy as np
-import faiss
 import os
 
 load_dotenv()
