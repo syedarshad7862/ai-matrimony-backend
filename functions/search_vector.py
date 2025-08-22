@@ -127,7 +127,7 @@ import pandas as pd
 
 
 # Search function using Qdrant
-async def qdrant_search_profiles(df, profile_id,full_name, k=3):
+async def qdrant_search_profiles(df, profile_id,full_name, k,username):
 		
 	    # Get user profile
     user_profile = df[(df["profile_id"] == profile_id) & (df["full_name"] == full_name)]
@@ -144,11 +144,11 @@ async def qdrant_search_profiles(df, profile_id,full_name, k=3):
 	# Opposite gender collection
     if user_gender == "Male":
         matched_df = df[df["gender"] == "Female"]  # Male searches for females
-        collection_to_search = "female_profiles"  # Male users search in the female index
+        collection_to_search = f"{username}_female_profiles"  # Male users search in the female index
         opposite_gender = "Female"
     elif user_gender== "Female":
         matched_df = df[df["gender"] == "Male"]  # Female searches for males
-        collection_to_search = "male_profiles"  # Female users search in the male index
+        collection_to_search = f"{username}_male_profiles"  # Female users search in the male index
         opposite_gender = "Male"
     else:
         return pd.DataFrame(), "❌ Invalid gender."

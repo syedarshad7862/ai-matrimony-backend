@@ -48,6 +48,7 @@ async def show_matches(
         except InvalidId:
             return {"error": "Invalid ID"}
         print(profile)
+        print(f"username: {user['agent_username']}")
         # Find the selected user profile
         selected_profile = await db["user_profiles"].find_one({"_id": obj_id})
         print(f"database url: {MONGO_URI} user: {user}")
@@ -67,7 +68,7 @@ async def show_matches(
         # print(f"search results: {profile}, {text}")
         vector_start = time.time()
         # matched_profiles, query_text = search_vector.extract_indices_from_vector(profile_df,profile_id,full_name,profile.top)
-        matched_profiles, query_text = await search_vector.qdrant_search_profiles(profile_df,profile_id,full_name,profile.top)
+        matched_profiles, query_text = await search_vector.qdrant_search_profiles(profile_df,profile_id,full_name,profile.top,user["agent_username"])
         print(f"Time for vectors search: {time.time() - vector_start:.2f} sec")
         # print(matched_profiles)
         # if matched_profiles.empty:
@@ -99,6 +100,6 @@ async def generate_vectors(request: Request, user_db= Depends(get_authenticated_
     user, db = user_db
     print(f"database url: {MONGO_URI} user: {user}")
     # await create_faiss_index(MONGO_URI,db.name,"user_profiles")
-    await create_qdrant_indexes(MONGO_URI,db.name,"user_profiles")
+    await create_qdrant_indexes(MONGO_URI,db.name,"user_profiles",user["agent_username"])
     # print(MONGO_URI,db.name,"user_profiles")
     return {"message": "Created vectors successfully!"}

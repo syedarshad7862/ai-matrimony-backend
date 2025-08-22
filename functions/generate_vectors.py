@@ -102,7 +102,7 @@
 
 
 import pandas as pd
-from sentence_transformers import SentenceTransformer
+# from sentence_transformers import SentenceTransformer
 from motor.motor_asyncio import AsyncIOMotorClient
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.schema import Document
@@ -114,7 +114,7 @@ from dotenv import load_dotenv
 import os
 load_dotenv()
 
-async def create_qdrant_indexes(mongodb_uri, db_name, collection_name):
+async def create_qdrant_indexes(mongodb_uri, db_name, collection_name,username):
     """Create separate Qdrant collections for male and female profiles."""
 
     # Connect to MongoDB
@@ -130,7 +130,6 @@ async def create_qdrant_indexes(mongodb_uri, db_name, collection_name):
     female_df = pd.DataFrame(female_data)
 
     # Embedding model
-    sentence_model = SentenceTransformer("all-MiniLM-L6-v2")
     embedding_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
     # Qdrant setup
@@ -202,5 +201,5 @@ async def create_qdrant_indexes(mongodb_uri, db_name, collection_name):
         print(f"✅ Uploaded {len(docs)} documents to Qdrant collection: {collection_name}")
 
     # Prepare and upload
-    add_to_qdrant(prepare_text(male_df), "male_profiles")
-    add_to_qdrant(prepare_text(female_df), "female_profiles")
+    add_to_qdrant(prepare_text(male_df), f"{username}_male_profiles")
+    add_to_qdrant(prepare_text(female_df), f"{username}_female_profiles")
